@@ -5,10 +5,20 @@ const Todo = () =>{
     const [inputValue, setInputValue] = React.useState("");
     const [todos, setTodos] = React.useState([]);
     const [page,setPage] = React.useState(1);
-
+    const [tpage,setTpage] = React.useState(0);
+    
     React.useEffect(() => {
         getTodos(page);
-    },[page]);
+        const pageno = async ()=>{
+        const res = await fetch(`http://localhost:3001/todos?_limit=2`);
+        const data = await res.json();
+        const total = res.headers.get('x-total-count');
+        setTpage(total);
+        console.log(tpage);
+        };
+        pageno();
+        
+    },[page,tpage]);
 
     const getTodos = (page = 1) =>{
         fetch(`http://localhost:3001/todos?_page=${page}&_limit=2`)
@@ -24,6 +34,7 @@ const Todo = () =>{
             title : inputValue,
             status : false,
         };
+
 
         const payloadJson = JSON.stringify(payload);
         // let url = "https://json-server-mocker-masai.herokuapp.com/tasks"
@@ -49,9 +60,10 @@ const Todo = () =>{
             })
         }
         <h3>Page : {page}</h3>
+        <h3>{tpage}</h3>
 
         <button disabled = {page === 1} onClick={() => setPage(page-1)}>Prev</button>
-        <button onClick={() => setPage(page+1)}>Next</button>
+        <button onClick={() => setPage(page+1)} disabled = {page === Math.ceil(tpage/2)}>Next</button>
     </div>
 }
 
